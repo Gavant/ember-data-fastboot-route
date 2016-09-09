@@ -1,7 +1,7 @@
 {
   "name": "ember-data-fastboot-route",
-  "version": "0.0.0",
-  "description": "The default blueprint for ember-cli addons.",
+  "version": "0.1.0",
+  "description": "This addon serializes the route data for each route in the chain when running in Fastboot. Then it gives a hook to use that data as the model in the web application on initial page load",
   "directories": {
     "doc": "doc",
     "test": "tests"
@@ -11,11 +11,14 @@
     "start": "ember server",
     "test": "ember try:each"
   },
-  "repository": "",
+  "repository": {
+    "type": "git",
+    "url": "https://github.com/Gavant/ember-data-fastboot-route.git"
+  },
   "engines": {
     "node": ">= 0.10.0"
   },
-  "author": "",
+  "author": "Adam Baker",
   "license": "MIT",
   "devDependencies": {
     "broccoli-asset-rev": "^2.4.2",
@@ -41,10 +44,16 @@
     "loader.js": "^4.0.1"
   },
   "keywords": [
-    "ember-addon"
+    "ember-addon",
+    "ember",
+    "ember-data",
+    "fastboot",
+    "shoebox",
+    "route"
   ],
   "dependencies": {
-    "ember-cli-babel": "^5.1.6"
+    "ember-cli-babel": "^5.1.6",
+    "ember-data": "^2.4.0"
   },
   "ember-addon": {
     "configPath": "tests/dummy/config"

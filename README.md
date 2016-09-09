@@ -1,27 +1,54 @@
-# Ember-data-fastboot-route
+# ember-data-fastboot-route
 
-This README outlines the details of collaborating on this Ember addon.
+ember-data-fastboot-route is a library for handling the serialization and use of the Fastboot Shoebox data.
+This library serializes each route model into a seperate shoebox to maintain route state. It then decides whether or not to return shoebox data instead of running your normal model method.
+
+This fixes any loading route issues you might have using fastboot, and also allows you to use ember data's store.query (which bypasses any data in the store) and still return the correct data when the web app boots up and re-renders.
+
+This addon requires use of ember data.
+
+For more information about FastBoot, see
+[www.ember-fastboot.com][ember-fastboot], the Ember CLI addon that's a
+prerequisite for developing FastBoot apps.
+
+[ember-fastboot]: https://www.ember-fastboot.com
 
 ## Installation
 
-* `git clone <repository-url>` this repository
-* `cd ember-data-fastboot-route`
-* `npm install`
-* `bower install`
+Installing the library is as easy as:
 
-## Running
+```bash
+ember install ember-data-fastboot-route
+```
 
-* `ember serve`
-* Visit your app at [http://localhost:4200](http://localhost:4200).
+## Usage
 
-## Running Tests
+```js
+import Ember from 'ember';
 
-* `npm test` (Runs `ember try:each` to test your addon against multiple Ember versions)
-* `ember test`
-* `ember test --server`
+export default Route.extend({
+    modelName: 'user',
+    beforeModel() {
+        this._super(...arguments);
+        ...othercode
+    },
+    model() {
+        const query = {
+            enabled: true
+            firstName: 'Tom'
+        };
 
-## Building
+        return this.store.query('user', query);
+    },
+    afterModel() {
+        this._super(...arguments);
+        ...othercode
+    }
+});
 
-* `ember build`
+```
 
-For more information on using ember-cli, visit [http://ember-cli.com/](http://ember-cli.com/).
+There are 3 things you need to keep in mind.
+1) A modelName property is required, as that is needed to serialize the data to the correct model type.
+2) Any beforeModel defined by your app must call the super method (but if no beforeModel exists for the route, you don't need to add one for this addon to work)
+3) Any afterModel defined by your app must call the super method (but if no afterModel exists for the route, you don't need to add one for this addon to work)
