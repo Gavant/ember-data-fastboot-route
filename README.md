@@ -30,7 +30,7 @@ export default Route.extend({
     modelName: 'user',
     beforeModel() {
         this._super(...arguments);
-        ...othercode
+        //...your code
     },
     model() {
         const query = {
@@ -42,7 +42,7 @@ export default Route.extend({
     },
     afterModel() {
         this._super(...arguments);
-        ...othercode
+        //...your code
     }
 });
 

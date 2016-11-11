@@ -1,6 +1,6 @@
 {
   "name": "ember-data-fastboot-route",
-  "version": "0.1.0",
+  "version": "0.1.1",
   "description": "This addon serializes the route data for each route in the chain when running in Fastboot. Then it gives a hook to use that data as the model in the web application on initial page load",
   "directories": {
     "doc": "doc",

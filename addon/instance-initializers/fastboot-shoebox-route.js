@@ -87,12 +87,14 @@ export function initialize(applicationInstance) {
             @public
         */
         serializeShoeboxData (model) {
-            let modelArray = isArray(model) ? model : Ember.A(model);
-
-            return modelArray.reduce((a,b) => a.concat(b), [])
-                .map(record => record._createSnapshot())
-                .map(snapshot => shoeboxSerializer.serialize(snapshot, { includeId: true }))
-                .reduce((a,b) => { a.data.push(b.data); return a; }, { data: [] });
+            if(isArray(model)) {
+                return model.reduce((a,b) => a.concat(b), [])
+                    .map(record => record._createSnapshot())
+                    .map(snapshot => shoeboxSerializer.serialize(snapshot, { includeId: true }))
+                    .reduce((a,b) => { a.data.push(b.data); return a; }, { data: [] });
+            } else {
+                return shoeboxSerializer.serialize(model._createSnapshot(), { includeId: true });
+            }
         },
 
         /**
@@ -116,6 +118,7 @@ export function initialize(applicationInstance) {
             let shoebox = get(fastboot, 'shoebox');
             let routeName = get(this, 'routeNameDasherized');
             let records = null;
+            let isSingleRecord = false;
             let shoeboxStore = this.getShoeboxStore(routeName);
 
             if (!shoeboxStore) {
@@ -127,15 +130,21 @@ export function initialize(applicationInstance) {
                 set(this, 'modelName', key);
                 //We need to unescape the html until https://github.com/ember-fastboot/fastboot/pull/79
                 let value = this.unescapeHtml(JSON.stringify(shoeboxStore[key]));
-                let array = JSON.parse(value);
-                records = store.push(array);
+                let deserializedData = JSON.parse(value);
+                isSingleRecord = !isArray(deserializedData.data);
+
+                if(isSingleRecord) {
+                    deserializedData.data = Ember.A([deserializedData.data]);
+                }
+
+                records = store.push(deserializedData);
             });
 
             set(shoebox, routeName, null);
             let shoeboxStoreNode = document.querySelector(`#shoebox-${routeName}`);
             shoeboxStoreNode.parentElement.removeChild(shoeboxStoreNode);
 
-            return records;
+            return isSingleRecord ? records.get('firstObject') : records;
         },
 
         /**
