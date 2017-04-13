@@ -1,6 +1,6 @@
 {
   "name": "ember-data-fastboot-route",
-  "version": "1.0.0",
+  "version": "1.0.0-beta.0",
   "description": "Transfers your data from FastBoot to Web",
   "keywords": [
     "ember-addon",
