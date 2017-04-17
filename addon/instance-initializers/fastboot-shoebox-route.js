@@ -82,9 +82,10 @@ export function initialize(applicationInstance) {
         */
         serializeEDModel (model) {
             if(isArray(model)) {
-                const modelName = model.get('firstObject.constructor.modelName');
+                //get the model name from the DS.RecordArray object itself, in case it is empty
+                const modelName = get(model, 'type.modelName');
                 const serializer = store.serializerFor(modelName);
-                const json = model.reduce((a,b) => a.concat(b), [])
+                const models = model.reduce((a,b) => a.concat(b), [])
                     .map(record => record._createSnapshot())
                     .map(snapshot => {
                       let json = serializer.serialize(snapshot, { includeId: true });
@@ -92,6 +93,16 @@ export function initialize(applicationInstance) {
                       normalizedJson.__emberDataModel = true;
                       return normalizedJson;
                   });
+
+                //preserve the DS.RecordArray's type and meta data
+                //so that it can be restored upon deserialization
+                const json = {
+                    meta: get(model, 'meta'),
+                    type: { modelName },
+                    __emberDataModel: true,
+                    emberDataModels: models
+                };
+
                 return json;
             } else {
                 const modelName = model.constructor.modelName;
@@ -135,7 +146,26 @@ export function initialize(applicationInstance) {
             if (!isEmpty(model)) {
                 if (this.isEDModel(model)) {
                     delete model.__emberDataModel;
-                    return store.push(model);
+
+                    //if a DS.RecordArray was serialized, deserialize it as an
+                    //Ember.ArrayProxy (which is what DS.RecordArray extends)
+                    //so that the model type and meta data is restored
+                    if(isArray(get(model, 'emberDataModels'))) {
+                        const models = Ember.A();
+
+                        get(model, 'emberDataModels').forEach(arrModel => {
+                            delete arrModel.__emberDataModel;
+                            models.pushObject(store.push(arrModel));
+                        });
+
+                        return Ember.ArrayProxy.create({
+                            content: models,
+                            type: get(model, 'type'),
+                            meta: get(model, 'meta')
+                        });
+                    } else {
+                        return store.push(model);
+                    }
                 }
 
                 if (typeof model === 'object') {
